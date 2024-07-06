@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+    @Author:    Xi_Dauphal
+    @Date:      2024-7-6
+    @Version:   4.0.0
+-->
+
+<oo>
+<init>
+	
+	importPackage(Packages.gregtech.api);
+    importPackage(Packages.gregtech.common.tileentities.machines.basic);
+
+    function getFormatNumber(mNumber){
+        return Packages.gregtech.api.util.GT_Utility.formatNumbers(mNumber)
+    }
+
+    function getColoredTier(vol){
+        return Packages.gregtech.api.util.GT_Utility.getColoredTierNameFromVoltage(vol)
+    }
+
+    function getCableVoltage(mID){
+        var tileEntity = Packages.gregtech.api.GregTech_API.METATILEENTITIES[mID];
+        if (tileEntity.isSimpleMachine()){return tileEntity.mVoltage}
+    }
+
+    function getCableLoss(mID){
+        var tileEntity = Packages.gregtech.api.GregTech_API.METATILEENTITIES[mID];
+        if (tileEntity.isSimpleMachine()){return tileEntity.mCableLossPerMeter}
+    }
+
+    function getAmperage(mID){
+        var tileEntity = Packages.gregtech.api.GregTech_API.METATILEENTITIES[mID];
+        if (tileEntity.isSimpleMachine()){return tileEntity.mAmperage}
+    }
+
+    function getMachineVoltage(mID){
+        var tileEntity = Packages.gregtech.api.GregTech_API.METATILEENTITIES[mID];
+        if (tileEntity.isElectric()){return tileEntity.maxEUInput()?tileEntity.maxEUInput():tileEntity.maxEUOutput()}
+    }
+	
+    function getAmpereOut(mID){
+        var tileEntity = Packages.gregtech.api.GregTech_API.METATILEENTITIES[mID];
+        if (tileEntity.isEnetOutput()) {return tileEntity.maxAmperesOut()}
+    }
+
+    function getAmpereIn(mID){
+        var tileEntity = Packages.gregtech.api.GregTech_API.METATILEENTITIES[mID];
+        if (tileEntity.isEnetInput()) {return tileEntity.maxAmperesIn()}
+    }
+
+    function isBetteryBuffer(mID){
+        return Packages.gregtech.api.GregTech_API.METATILEENTITIES[mID] instanceof Packages.gregtech.api.metatileentity.implementations.GT_MetaTileEntity_BasicBatteryBuffer
+    }
+
+    function isCharger(mID){
+        return Packages.gregtech.api.GregTech_API.METATILEENTITIES[mID] instanceof Packages.gregtech.common.tileentities.machines.basic.GT_MetaTileEntity_Charger
+    }
+
+    function isTransformer(mID){
+        return Packages.gregtech.api.GregTech_API.METATILEENTITIES[mID] instanceof Packages.gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Transformer
+    }
+
+    function judge(i){
+		if (i == 0) return RED+"关闭"
+		return GREEN+"启用"
+	}
+
+    function Mode(type){
+		return YELLOW+type
+	}
+
+
+</init>
+</oo>
+
+<tileentity id="BaseMetaTileEntity">
+
+    <!-- 减少相关的 硬编码 和 魔法数字 -->
+    {
+        var modeOn = 1;
+        var modeOff = 0;
+    }
+
+    <!-- 基础模块 -->
+	<!-- 运行状态 -->
+    <line displayname="机器加工 ">
+        if (nbt['mWorks'] != undefined && isTransformer(nbt['mID']) == false){
+            if (nbt['mActive'] == 1) return GOLD + "运行中"
+            if (nbt['mActive'] == 0) return YELLOW + "待机中"
+            return RED + "已关机"
+    </line>
+	
+
+	<!-- 机器的属性相关 -->
+    <line displayname="流体模式 ">
+        if(nbt['mFluidMode'] == modeOn) return judge(modeOn)
+    </line>
+    <line displayname="流体锁定 ">
+        if(nbt['isFluidLocked'] == modeOn) return judge(modeOn)
+    </line>
+	<line displayname="总线隔离 ">
+        if(nbt['inputSeparation'] == modeOn) return judge(modeOn)
+	</line>
+    <line displayname="批量处理 ">
+        if(nbt['batchMode'] == modeOn) return judge(modeOn)
+    </line>
+    <line displayname="配方锁定 ">
+        if(nbt['mLockedToSingleRecipe'] == modeOn) return judge(modeOn)
+    </line>
+
+
+    <!-- 当前模相关 -->
+    <line displayname="当前模式 ">
+        if(nbt['voidExcessEnabled'] == modeOn) return Mode("溢出销毁")
+    </line>
+
+
+    <!--锅炉温度相关 -->
+
+
+    <!-- 多方块发电机 -->
+    
+
+    <!-- 蒸汽机器功率 -->
+
+
+    <!-- 电池箱信息X -->
+
+
+    <!-- 缓存能量 & 兰波顿LSC -->
+
+
+    <!-- 机器加工进度 -->
+
+
+    <!-- 蒸汽存量 -->
+
+
+    <!-- 多方块机器维修 -->
+
+
+    <!-- 能源仓信息相关 -->
+
+
+    <!-- 输出相关 -->
+
+
+    <!-- 量子计算相关 -->
+
+
+    <!-- 线缆/管道  -->
+
+
+</tileentity>
