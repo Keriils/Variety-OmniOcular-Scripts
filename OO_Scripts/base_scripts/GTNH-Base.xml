@@ -2,6 +2,7 @@
     @Author:    Xi_Dauphal
     @Date:      2024-7-6
     @Version:   4.0.0
+	@Gregtech:	5.09.45.168
 -->
 
 <oo>
@@ -10,69 +11,158 @@
         importPackage(Packages.gregtech.api);
         importPackage(Packages.gregtech.common.tileentities.machines.basic);
     
-        function getFormatNumber(mNumber){
+        function getFormatNumber(mNumber) {
             return Packages.gregtech.api.util.GT_Utility.formatNumbers(mNumber);
         }
     
-        function getColoredTier(vol){
+        function getColoredTier(vol) {
             return Packages.gregtech.api.util.GT_Utility.getColoredTierNameFromVoltage(vol);
         }
     
-        function getCableVoltage(mID){
+        function getCableVoltage(mID) {
             var tileEntity = Packages.gregtech.api.GregTech_API.METATILEENTITIES[mID];
-            if (tileEntity.isSimpleMachine()){return tileEntity.mVoltage;}
+            if (tileEntity.isSimpleMachine()) {return tileEntity.mVoltage;}
         }
     
-        function getCableLoss(mID){
+        function getCableLoss(mID) {
             var tileEntity = Packages.gregtech.api.GregTech_API.METATILEENTITIES[mID];
-            if (tileEntity.isSimpleMachine()){return tileEntity.mCableLossPerMeter;}
+            if (tileEntity.isSimpleMachine()) {return tileEntity.mCableLossPerMeter;}
         }
     
-        function getAmperage(mID){
+        function getAmperage(mID) {
             var tileEntity = Packages.gregtech.api.GregTech_API.METATILEENTITIES[mID];
-            if (tileEntity.isSimpleMachine()){return tileEntity.mAmperage;}
+            if (tileEntity.isSimpleMachine()) {return tileEntity.mAmperage;}
         }
     
-        function getMachineVoltage(mID){
+        function getMachineVoltage(mID) {
             var tileEntity = Packages.gregtech.api.GregTech_API.METATILEENTITIES[mID];
-            if (tileEntity.isElectric()){return tileEntity.maxEUInput()?tileEntity.maxEUInput():tileEntity.maxEUOutput();}
+            if (tileEntity.isElectric()) {return tileEntity.maxEUInput()?tileEntity.maxEUInput():tileEntity.maxEUOutput();}
         }
         
-        function getAmpereOut(mID){
+        function getAmpereOut(mID) {
             var tileEntity = Packages.gregtech.api.GregTech_API.METATILEENTITIES[mID];
             if (tileEntity.isEnetOutput()) {return tileEntity.maxAmperesOut();}
         }
     
-        function getAmpereIn(mID){
+        function getAmpereIn(mID) {
             var tileEntity = Packages.gregtech.api.GregTech_API.METATILEENTITIES[mID];
             if (tileEntity.isEnetInput()) {return tileEntity.maxAmperesIn();}
         }
     
-        function isBetteryBuffer(mID){
+        function isBetteryBuffer(mID) {
             return Packages.gregtech.api.GregTech_API.METATILEENTITIES[mID] instanceof Packages.gregtech.api.metatileentity.implementations.GT_MetaTileEntity_BasicBatteryBuffer;
         }
     
-        function isCharger(mID){
+        function isCharger(mID) {
             return Packages.gregtech.api.GregTech_API.METATILEENTITIES[mID] instanceof Packages.gregtech.common.tileentities.machines.basic.GT_MetaTileEntity_Charger;
         }
     
-        function isTransformer(mID){
+        function isTransformer(mID) {
             return Packages.gregtech.api.GregTech_API.METATILEENTITIES[mID] instanceof Packages.gregtech.api.metatileentity.implementations.GT_MetaTileEntity_Transformer;
         }
+		
+		{
+			var colorArray = 
+			['黑色','红色','绿色','棕色','蓝色','紫色','青色','淡灰'
+			,'灰色','粉色','黄绿','黄色','淡蓝','品红','橙色','白色'];
+			
+			var array_of_blacklist = [865,866,996,1005,1131,1151,1152,1153,1171,2105,13101,13102,31026,31073,31074,31076,32016,19026];
+		}
+		
+		{
+			var enable_display_placer = false;
+			
+		}
+		
+		{
+            var modeOn = 1;
+            var modeOff = 0;
+			var workOn = 0;
+			var workOff = 1;
+			
+        }
     
-        function judge(i){
+        function judge(i) {
             if (i == 0) return RED+"关闭";
             return GREEN+"启用";
         }
     
-        function Mode(type){
+        function Mode(type) {
             return YELLOW+type;
         }
-    
-        {
-            var modeOn = 1;
-            var modeOff = 0;
+		
+		function standards(num) {
+			var prod = '', count = 0;
+			num = (num || 0).toString();
+			
+			for (var i = num.length - 1; i >= 0; i--) {
+				count++;
+				prod = num.charAt(i) + prod;
+				if (!(count % 3) && i != 0) { prod = ',' + prod; }
+			}
+			return prod;
+		}
+		
+		function formatTimes(ticks) {
+            if (ticks != undefined){
+                var day=hour=min=second=0, result="", negative=ticks<0 ? 1:0;
+                ticks=Math.abs(ticks);
+                if (ticks>1728000){
+                    day=Math.floor(ticks/1728000);
+                    ticks-=day*1728000;
+                    result+=DRED+day+DRED+"天";
+                }
+                if (ticks>72000||day>0){
+                    hour=Math.floor(ticks/72000);
+                    ticks-=hour*72000;
+                    result+=RED+hour+RED+"时";
+                }
+                if (ticks>1200||day>0||hour>0){
+                    min=Math.floor(ticks/1200);
+                    ticks-=min*1200;
+                    result+=AQUA+min+AQUA+"分"
+                }
+                second = ticks/20;
+                second=(day+hour+min)>0||ticks>640 ? Math.floor(second):second.toFixed(2);
+                result+=GREEN+second+GREEN+"秒";
+                return negative ? result="-"+result : result;
+            }
         }
+		
+		function getMaxAmpere(EU){
+			var EU = Math.abs(EU);
+			return YELLOW + (EU / 2147483640).toFixed(1) + GOLD + ' A ' + 'MAX';
+		}
+		
+		function sci_format(bytes) {
+			var	string_form	= bytes.toString(), pow_number	= "", head_number	= "";
+			if	(string_form[1] == '.'){
+				pow_number = string_form.slice(-2);
+				head_number = string_form.slice(0,5);
+			} else {
+				pow_number	= string_form.length()-1;
+				head_number	= string_form.slice(0,1) +'.'+string_form.slice(1,4);
+			}
+			return	Number(pow_number) > 3 ? YELLOW + Number(head_number).toFixed(2) +
+					GOLD + 'x10^' + LPURPLE + Number(pow_number) : bytes;
+		}
+		
+		function storedNumber(Nubmber) {
+			var n_out = 0, n_cot = 1, k = 0, j = 1;
+			for (i = Nubmber.length() - 1; i >= 0; i--) {
+				if (Nubmber[i] == "-") k = 256 - k;
+				else {k += Nubmber[i] * j; j *= 10;}
+				if (Nubmber[i-1] == "," || i == 0){n_out += k * n_cot; n_cot *= 256; k = 0; j = 1; i--}
+			}
+			return n_out;
+		}
+		
+		function Arrayofbl(mID){
+			for (i = 0; i < array_of_blacklist.length; i++){
+				if (mID == array_of_blacklist[i]) return false;
+			}
+			return true;
+		}
         
     </init>
     
@@ -80,17 +170,38 @@
         上边注释写不了 故此在下面写init初始化的注释
         上面赋值主要是 减少相关的 硬编码 和 魔法数字
         为后续维护服务.....
-     -->
-    
+    -->
+	 
+	<!-- 
+		相关的常量或者是变量 (减少魔法数字)
+	-->
+	
+	<!-- 
+		相关函数说明:
+		顶部的函数主要是调用java获取相应数据
+		judge	-> 开关信息显示用到的函数,方便修改及维护
+		Mode	-> 主要是一个标准同时增加复用性
+		standards	-> 一个千分位的函数,仅支持 整数 或 整数数字字符串
+		getMaxAmpere -> 获取MAX电压安数的函数
+	-->
+	
+	
     <tileentity id="BaseMetaTileEntity">
-    
+	
+	
         <!-- 基础模块 -->
+		<!-- 变压器模式显示 -->
+		<line displayname="当前模式 ">    
+			if (isTransformer(nbt['mID'])) return nbt['mWorks']==workOn ? Mode("降压模式") : Mode("升压模式");
+		</line>
+		
+		
         <!-- 运行状态 -->
         <line displayname="机器加工 ">
-            if (nbt['mWorks'] != undefined && isTransformer(nbt['mID']) == false)
+            if (nbt['mWorks'] != undefined && isTransformer(nbt['mID']) == false) {
                 if (nbt['mActive'] == modeOn) return GOLD + "运行中";
-                if (nbt['mWorks'] == 1) return RED + "已关机";
-                return YELLOW + "待机中";
+                if (nbt['mWorks'] == workOff) return RED + "已关机";
+				return YELLOW + "待机中";}
         </line>
         
     
@@ -111,14 +222,79 @@
             if(nbt['mLockedToSingleRecipe'] == modeOn) return judge(modeOn);
         </line>
     
-    
-        <!-- 当前模相关 -->
+		
+		
+		<!-- 当前模相关 -->
         <line displayname="当前模式 ">
             if(nbt['voidExcessEnabled'] == modeOn) return Mode("溢出销毁");
         </line>
+		
+		
+		<!--超净室相关 -->
+		<line displayname="洁净度 ">
+            if(nbt['mID'] == 1172 || nbt['mID'] == 19024)
+				return YELLOW + (nbt['mEfficiency'] / 100).toFixed(2) + AQUA + " %";
+		</line>
     
     
-        <!--锅炉温度相关 -->
+		<!-- 当前机器模式相关,未来可能删掉,在这只是留个标记 -->
+	
+	
+		<!-- 钻机相关 -->
+	
+	
+		<!-- 喷涂颜色 -->
+		<line displayname="喷涂颜色 ">
+            if(nbt['mColor'] != modeOff) return YELLOW + colorArray[nbt['mColor'] - 1];
+		</line>
+        
+		
+		<!-- AE_Hatch相关 -->
+		<line displayname="ME-自动拉取 ">
+			if 	(nbt['autoStock'] != undefined || nbt['autoPull'] != undefined) {
+				if (nbt['mID'] != 2717 && nbt['mID'] != 2718) {
+					if	(nbt['autoPull'] != undefined) return judge(nbt['autoPull']);
+					if	(nbt['autoStock'] != undefined) return judge(nbt['autoStock']);
+			}}
+		</line>
+		
+		<line displayname="ME-其余面连接 ">
+			if(nbt['additionalConnection'] != undefined) return judge(nbt['additionalConnection']);
+		</line>
+		
+		<line displayname="数据存储-物品 ">
+			if(nbt['mID'] == 2710 && nbt['cachedItems'] != undefined) {
+				var outputString = "\\n";
+				for (i = 0; nbt['cachedItems'][i] != undefined; i++) {
+					outputString += 
+					YELLOW + standards(nbt['cachedItems'][i]['size']) + "个" +
+					GREEN + name(nbt['cachedItems'][i]['itemStack']) + ALIGNRIGHT + "\\n";
+				}
+				return  outputString;
+			}
+		</line>
+		
+		<line displayname="数据存储-流体 "> 
+			if(nbt['mID'] == 2713 && nbt['cachedFluids'] != undefined) {
+				var outputString = "\\n";
+			    for(i = 0; nbt['cachedFluids'][i] != undefined; i++) {
+					outputString += 
+					AQUA + standards(nbt['cachedFluids'][i]['size']) + YELLOW + "L " +
+					GREEN +  fluidName(nbt['cachedFluids'][i]['fluidStack']['FluidName']) + ALIGNRIGHT + "\\n"; 
+				}
+				return outputString;
+			}
+		</line>
+		
+		<!--XX兰波顿XX -->
+		<line displayname="EU网络 ">
+			if (nbt['wireless_mode'] == modeOn)
+				return 	YELLOW + ((nbt['wireless_mode_cooldown'] / 6000) * 100).toFixed(1) + 
+						LPURPLE + " %" + "\\n" + "剩余时间" + TAB + ALIGNRIGHT +
+						formatTimes(6000 - nbt['wireless_mode_cooldown']);
+		</line>
+		
+		<!-- 锅炉温度相关 -->
     
     
         <!-- 多方块发电机 -->
@@ -131,28 +307,279 @@
     
     
         <!-- 缓存能量 & 兰波顿LSC -->
+		
+		
+		<!-- MAX电流计算 -->
+		<line displayname="MAX-Tier ">
+			var euWall = Math.pow(10,9) * 2;
+			
+			if (Math.abs(nbt['mEUt']) >= euWall){
+				return getMaxAmpere(nbt['mEUt']);
+			}
+			
+			if (nbt['mID'] == 14001 && nbt['euPerTick'] >= euWall){
+				return getMaxAmpere(nbt['euPerTick']);
+			}
+			
+			if (Math.abs(nbt['eLongEUPerTick']) >= euWall){
+				return getMaxAmpere(nbt['eLongEUPerTick']);
+			}
+			
+			if (nbt['costingWirelessEUTemp'] != undefined && Math.abs(nbt['costingWirelessEUTemp']) >= euWall){
+				return getMaxAmpere(nbt['costingWirelessEUTemp']);
+			}
+		</line>
     
+	
+		<!--XX缓存能量_兰波顿LSCXX -->
+		<line displayname="缓存能量 ">
+		    if(nbt['mStoredEnergy'] != 0 && nbt['mID'] != 13106) return GREEN + sci_format(nbt['mStoredEnergy']) + GOLD + " EU";
+		</line>
+		
+		<line displayname="存储能量 ">
+			if(nbt['mID'] == 13106){
+				stored = storedNumber("" + nbt['stored']);
+				capacity = storedNumber("" + nbt['capacity']);
+				
+				percent = (stored / capacity * 100).toFixed(5);
+				
+				return GREEN + sci_format(stored) + RED + " / " + GOLD + sci_format(capacity) +
+					"\\n" + "§d存储占比" + TAB + ALIGNRIGHT + YELLOW + percent + AQUA + "%";	
+				}
+		</line>
     
+	
         <!-- 机器加工进度 -->
-    
+		<line displayname="工作进程 ">
+			if (nbt['mMaxProgresstime'] != 0)
+			if ([1020,1021,1022,1172,15300,19024,1023,1154,13104,32001,32014].indexOf(nbt['mID']) == -1)
+				if (Arrayofbl(nbt['mID'])) {
+					
+					var MPtime=nbt['mMaxProgresstime'];
+					var GPtime=nbt['mProgresstime'];
+					var Catime=(GPtime/MPtime*100).toFixed(2);
+					
+					if (MPtime == 1) return YELLOW + "你已经" + RED + "超" + YELLOW + "到1T啦";
+					
+					if (MPtime > 1) return (((100/3) > Catime) ? RED : ((100/1.5) > Catime ? AQUA : GREEN)) + Catime + BLUE + "%" +
+						"\\n" + GREEN + "需耗时" + formatTimes(MPtime) + TAB + ALIGNRIGHT + BLUE + "剩余" + formatTimes(MPtime-GPtime);
+					
+				}
+		</line>	
+	
     
         <!-- 蒸汽存量 -->
+		<line displayname="蒸汽存量 ">
+            if (nbt['mSteam']['Amount'] != undefined) return nbt['mSteam']['Amount']+" L";
+		</line>
+		
+        <line displayname="蒸汽存量 ">
+            if (nbt['mStoredSteam'] != 0 && nbt['mStoredEnergy'] == 0) return nbt['mStoredSteam']+" L";
+		</line>
     
+	
+		<!-- 大型热交换器 效率 -->
+		<line displayname="效率 ">
+			if (nbt['mActive'] != 0 && nbt['mID'] == 1154) return YELLOW + ((nbt['mEfficiency']) / 100).toFixed(0) + WHITE + " %"}
+		</line>
+		
+		<!-- 大型热交换器 蒸汽生产速度 -->
+		<line displayname="正在生产 ">
+		    if (nbt['mActive'] != 0 && nbt['mEUt'] != undefined && nbt['mID'] == 1154)
+			if (nbt['superheated'] == 0) return GREEN + "蒸汽: " + YELLOW + Math.abs(nbt['mEUt']) * 2 + YELLOW + " L/t";
+			else if (nbt['superheated'] == 1) return GREEN + "过热蒸汽: " + YELLOW + Math.abs(nbt['mEUt']) + WHITE+" L/t";
+		</line>
+		
+		<!-- 大型锅炉 蒸汽生产速度 -->
+		<line displayname="蒸汽生产 ">
+		    if(nbt['mActive'] !=0 && nbt['mEUt'] != undefined)
+			if(nbt['mID']==1020 || nbt['mID']==1021 || nbt['mID']==1022 || nbt['mID']==1023)
+				return YELLOW + Math.abs(nbt['mEUt']) * 2 + WHITE + " L/t";
+		</lin
+		
     
         <!-- 多方块机器维修 -->
+		<line displayname="§c注意 ! ">
+            if (nbt['mWrench'] == 0 || nbt['mScrewdriver'] == 0 || nbt['mSoftHammer'] == 0 || nbt['mHardHammer'] == 0 || nbt['mSolderingTool'] == 0 || nbt['mCrowbar'] == 0) {
+                var result = '';
+                result += RED + "xx 需要维护 xx";
+				
+                if (nbt['mWrench'] == 0) {
+                    result += "\\n" + RED + "注意 !" + TAB + ALIGNRIGHT + RED + "xx 需要扳手 xx"
+                }
+				
+                if (nbt["mScrewdriver"] == 0) {
+                    result += "\\n" + RED + "注意 !" + TAB + ALIGNRIGHT + RED + "xx 需要螺丝刀 xx"
+                }
+				
+                if (nbt["mSoftHammer"] == 0) {
+                    result += "\\n" + RED + "注意 !" + TAB + ALIGNRIGHT + RED + "xx 需要软锤 xx"
+                }
+				
+                if (nbt["mHardHammer"] == 0) {
+                    result += "\\n" + RED + "注意 !" + TAB + ALIGNRIGHT + RED + "xx 需要锻造锤 xx"
+                }
+				
+                if (nbt["mSolderingTool"] == 0) {
+                    result += "\\n" + RED + "注意 !" + TAB + ALIGNRIGHT + RED + "xx 需要电烙铁 xx"
+                }
+				
+                if (nbt["mCrowbar"] == 0) {
+                    result += "\\n" + RED + "注意 !" + TAB + ALIGNRIGHT + RED + "xx 需要撬棍 xx"
+                }
+				
+                return result;
+            }
+        </line>
     
     
         <!-- 能源仓信息相关 -->
-    
+		<line displayname="电压等级 ">
+			if (nbt['mMachineBlock'] != undefined)
+			if (!isTransformer(nbt['mID'])) {
+                var vol = getMachineVoltage(nbt['mID']);
+                if (vol > 2147483648) {
+                    return GOLD + '(' + DRED + UNDER +"ERROR" + GOLD + ')'
+                }
+				if (vol) {
+                    return GOLD + '(' + getColoredTier(vol) + GOLD + ')'
+                }
+            }
+		</line>
+		
+		<line displayname="额定电压 ">
+			if (nbt['mMachineBlock']!=undefined|| Arrayofpower(nbt['mID']))
+		    if (!isTransformer(nbt['mID'])) {
+                var vol = getMachineVoltage(nbt['mID']);
+                if (vol) {
+                    return YELLOW + getFormatNumber(vol) + GOLD + ' EU/t'
+                }
+            }
+		</line>
+		
     
         <!-- 输出相关 -->
+		<!-- 机器物品输出 -->
+		<line displayname="物品输出">
+			if (nbt['mActive']==1) {
+				var outputString = "";
+				var iname = [];
+				var icount = [];
+				var id_match = [];
+				var coutile = 0;
+				var slot = 0;
+				var OilIf = nbt['mOutputItemsLength'] == undefined ? 16 : (nbt['mOutputItemsLength']+1);
+				for (var i=0; i < OilIf; i++) {
+					if (nbt['mOutputItem' + i] == undefined){continue;}
+					else {
+						str = "mOutputItem" + i;
+						coutile++;
+						Idamage = nbt[str]['id'] + ":" + nbt[str]['Damage'];
+						if (id_match.indexOf(Idamage) == -1) {
+							iname[slot] = name(nbt[str]);
+							icount[slot] = nbt[str]['Count'];
+							id_match[slot] = Idamage;
+							slot++;
+						} else {icount[id_match.indexOf(Idamage)] += nbt[str]['Count'];}
+					}
+				}
+				if (coutile != 0){
+					outputString += GOLD + "循环" + GREEN + coutile + GOLD + "次" + ALIGNRIGHT + "\\n";
+					for (var i=0;i<iname.length;i++) {
+						outputString += YELLOW + standards(icount[i]) + "个" + GREEN + iname[i] +ALIGNRIGHT;
+						if (i != iname.length-1) {
+							outputString +=  "\\n" ;
+						}
+					}
+					return outputString;
+				}
+			}
+		</line>
+		
+		<!--机器 液体产物 -->
+		<line displayname="流体输出 ">
+		    if(nbt['mOutputFluid']['Amount'] != undefined) 
+				return "\\n" + AQUA + standards(nbt['mOutputFluid']['Amount']) + YELLOW + "L " +
+					GREEN + fluidName(nbt['mOutputFluid']['FluidName']);
+		</line>
+		
+		<line displayname="流体输出 "> 
+			if (nbt['eFlip'] != undefined && nbt['mActive']==1) {
+				var outputString2 = "";
+				var fname = [];
+				var fcount = [];
+				var fname_match = [];
+				var slot = 0;
+				var coutile = 0;
+				var OilIf = nbt['mOutputFluidsLength']==undefined?16:(nbt['mOutputFluidsLength']+1);
+				for (var i=0;i<OilIf;i++){
+					if (nbt['mOutputFluids'+i]==undefined){continue;}
+					else {
+							str = "mOutputFluids"+i;
+							coutile++;
+							Idamage = nbt[str]['FluidName'];
+							if (fname_match.indexOf(Idamage)==-1){
+								fname[slot] = fluidName(nbt[str]['FluidName']);
+								fcount[slot] = nbt[str]['Amount'];
+								fname_match[slot] = Idamage;
+								slot++;
+							}else {fcount[fname_match.indexOf(Idamage)] += nbt[str]['Amount'];}}
+					}
+				if (coutile!=0){outputString2 +=GOLD+"循环"+GREEN+coutile+GOLD+"次" + ALIGNRIGHT+"\\n";
+				for (var i=0;i<fname.length;i++){
+					outputString2 += AQUA + standards(fcount[i]) + YELLOW + "L" + GREEN + fname[i] +ALIGNRIGHT;
+					if (i!=fname.length-1){
+						outputString2 +=  "\\n" ;
+					}
+				}
+				return outputString2;}
+			}
+		</line> 
     
     
         <!-- 量子计算相关 -->
+		<!-- 机箱状态  -->
+		<line displayname="超频比 ">
+			if(nbt['mID']==15450 && nbt['mActive'] == modeOn) return AQUA+nbt['eOverClock'];
+		</line>
+		
+		<line displayname="过压比 ">
+			if(nbt['mID']==15450 && nbt['mActive'] == modeOn) return AQUA+nbt['eOverVolt'];
+		</line>
+		
+		<line displayname="机箱热量 ">
+			if(nbt['mID']==15450 || nbt['mID']==18958) return RED+standards(nbt['eHeat']);
+		</line>
+		
+		
+		<!-- 算力 -->
+		<line displayname="最低算力需求 ">
+			if(nbt['eDataR'] != undefined && nbt['mActive'] == modeOn && nbt['eDataR'] != 0) return standards(nbt['eDataR']) +RED+ "/s";
+		</line>
+		
+		<line displayname="当前算力 ">
+			if (isBetween(32019,32023,nbt['mID']) == false)
+			if ([15300,15410,32014,32017,32001,19024,19026,32024].indexOf(nbt['mID']) == -1)
+			if(nbt['eDataA'] != undefined && nbt['mActive'] == modeOn) return YELLOW+standards(nbt['eDataA']) +GREEN+ "/s";
+		</line>
+		
+		<line displayname="§a总算力需求">
+			if(nbt['eComputationRequired'] != undefined && nbt['mActive'] == modeOn) return GREEN + standards(nbt['eComputationRequired'] / 20);
+		</line>
+		
+		<line displayname="§9进度">
+			if(nbt['eComputationRequired'] != undefined && nbt['mActive'] == modeOn) 
+				return YELLOW + standards(((nbt['eComputationRequired'] - nbt['eComputationRemaining']) / 20).toFixed(0)) +
+					RED + "/" + GOLD + standards((nbt['eComputationRequired'] / 20 ));
+		</line>
+		
+	</tileentity>
+		
     
-    
-        <!-- 线缆/管道  -->
-    
-    
+    <!-- 线缆/管道  -->
+    <tileentity id="BaseMetaPipeEntity">
+		<line displayname="流体存量">
+		    if(nbt['mFluid']['Amount'] != undefined) return GREEN + fluidName(nbt['mFluid']['FluidName']) + " : " + AQUA + standards(nbt['mFluid']['Amount']) + YELLOW+" L";
+		</line>
     </tileentity>
-    </oo>
+</oo>
